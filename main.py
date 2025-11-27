@@ -25,31 +25,37 @@ def roots_20(coef: np.ndarray) -> tuple[np.ndarray, np.ndarray] | None:
             - Wektor miejsc zerowych (m,).
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
-    pass
+    if not isinstance(coef, np.ndarray):
+        return None
+    if coef.ndim != 1:
+        return None
+    n = len(coef)
+    zaburzenie = np.random.random_sample(n,) * 1e-10
+    coef_zaburzone = coef + zaburzenie
+    roots = nppoly.polyroots(coef_zaburzone)
+    return coef_zaburzone, roots
 
 
 def frob_a(coef: np.ndarray) -> np.ndarray | None:
-    """Funkcja służąca do wyznaczenia macierzy Frobeniusa na podstawie
-    współczynników jej wielomianu charakterystycznego:
-    w(x) = a_n*x^n + a_{n-1}*x^{n-1} + ... + a_2*x^2 + a_1*x + a_0
+    if not isinstance(coef, np.ndarray):
+        return None
+    if coef.ndim != 1:
+        return None
 
-    Testy wymagają poniższej definicji macierzy Frobeniusa (implementacja dla 
-    innych postaci nie jest zabroniona):
-    F = [[       0,        1,        0,   ...,            0],
-         [       0,        0,        1,   ...,            0],
-         [       0,        0,        0,   ...,            0],
-         [     ...,      ...,      ...,   ...,          ...],
-         [-a_0/a_n, -a_1/a_n, -a_2/a_n,   ..., -a_{n-1}/a_n]]
+    if len(coef) < 2:
+        return None
 
-    Args:
-        coef (np.narray): Wektor współczynników wielomianu (n,).
+    n = len(coef) - 1
+    F = np.zeros((n, n))
 
-    Returns:
-        (np.ndarray): Macierz Frobeniusa o rozmiarze (n,n).
-        Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
-    """
-    pass
+    for i in range(n - 1):
+        F[i, i + 1] = 1
 
+    for j in range(n):
+        F[n - 1, j] = -coef[j] / coef[-1]
+
+    return F
+    
 
 def is_nonsingular(A: np.ndarray) -> bool | None:
     """Funkcja sprawdzająca czy podana macierz NIE JEST singularna. Przy
@@ -63,4 +69,15 @@ def is_nonsingular(A: np.ndarray) -> bool | None:
             wypadku `False`.
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
-    pass
+    if not isinstance(A, np.ndarray):
+        return None
+    if A.ndim != 2:
+        return None
+    if A.shape[0] != A.shape[1]:
+        return None
+    
+    if np.linalg.det(A) == 0:
+        return False
+    else:
+        return True
+
